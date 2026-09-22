@@ -49,43 +49,40 @@ It safely bridges an autonomous AI agent with external development and professio
 
 ```mermaid
 flowchart TD
-    classDef client fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#fff
-    classDef graph fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#fff
-    classDef mcp fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#fff
-    classDef hitl fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#fff
-    classDef ext fill:#1f2937,stroke:#9ca3af,stroke-width:1px,color:#fff
-
-    User(("👤 User / Developer"))
+    User(["👤 User / Developer"])
     
     subgraph Interfaces ["🖥️ Presentation Layer"]
-        Streamlit["Streamlit Web UI<br/>(frontend/app.py)"]:::client
-        CLI["Action Agent CLI<br/>(backend/main.py)"]:::client
+        Streamlit["Streamlit Web UI<br/>(frontend/app.py)"]
+        CLI["Action Agent CLI<br/>(backend/main.py)"]
     end
 
     subgraph LangGraphEngine ["🧠 LangGraph Orchestrator"]
-        AgentLoop["Autonomous Reasoning Node<br/>StateGraph(MessagesState)"]:::graph
-        HITL_Issue{"🛡️ Issue Approval Gate<br/>(StateGraph)"}:::hitl
-        HITL_Post{"🛡️ Post Approval Gate<br/>(StateGraph)"}:::hitl
+        AgentLoop["Autonomous Reasoning Node<br/>StateGraph: MessagesState"]
+        HITL_Issue{"🛡️ Issue Approval Gate<br/>StateGraph"}
+        HITL_Post{"🛡️ Post Approval Gate<br/>StateGraph"}
     end
 
     subgraph MultiMCPClient ["🔌 Multi-MCP Client Layer"]
-        SessionScope["multi_mcp_session_scope()<br/>Concurrent AsyncExitStack (stdio)"]:::client
+        SessionScope["multi_mcp_session_scope<br/>Concurrent AsyncExitStack (stdio)"]
     end
 
     subgraph MCPServers ["⚡ Model Context Protocol Servers"]
-        GH_Server["🐙 GitHub MCP Server<br/>(mcp_servers.github.server)<br/>6 Tools"]:::mcp
-        LI_Server["💼 LinkedIn MCP Server<br/>(mcp_servers.linkedin.server)<br/>5 Tools"]:::mcp
+        GH_Server["🐙 GitHub MCP Server<br/>(mcp_servers.github.server)<br/>6 Tools"]
+        LI_Server["💼 LinkedIn MCP Server<br/>(mcp_servers.linkedin.server)<br/>5 Tools"]
     end
 
     subgraph ExternalAPIs ["🌐 External Services"]
-        GitHubAPI[("GitHub REST API<br/>v3 / Repos & Issues")]:::ext
-        LinkedInAPI[("LinkedIn REST API<br/>v2 OpenID & Posts 202401")]:::ext
+        GitHubAPI[("GitHub REST API<br/>v3 / Repos & Issues")]
+        LinkedInAPI[("LinkedIn REST API<br/>v2 OpenID & Posts 202401")]
     end
 
-    User ==> Streamlit & CLI
-    Streamlit & CLI ==> AgentLoop
+    User ==> Streamlit
+    User ==> CLI
+    Streamlit ==> AgentLoop
+    CLI ==> AgentLoop
     AgentLoop ==> SessionScope
-    SessionScope -.-> GH_Server & LI_Server
+    SessionScope -.-> GH_Server
+    SessionScope -.-> LI_Server
 
     AgentLoop -.-> HITL_Issue
     AgentLoop -.-> HITL_Post
@@ -95,6 +92,18 @@ flowchart TD
     
     GH_Server ==> GitHubAPI
     LI_Server ==> LinkedInAPI
+
+    classDef cClient fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#fff;
+    classDef cOrch fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#fff;
+    classDef cMcp fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#fff;
+    classDef cHitl fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#fff;
+    classDef cExt fill:#1f2937,stroke:#9ca3af,stroke-width:1px,color:#fff;
+
+    class Streamlit,CLI cClient;
+    class AgentLoop cOrch;
+    class HITL_Issue,HITL_Post cHitl;
+    class GH_Server,LI_Server cMcp;
+    class GitHubAPI,LinkedInAPI cExt;
 ```
 
 ---
